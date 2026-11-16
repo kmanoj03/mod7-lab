@@ -1,0 +1,63 @@
+Distributed order processing
+Events may arrive late, out of order, or more than once.
+Pipeline: version 1 CREATED -> version 2 PAID -> version 3 SHIPPED
+
+================================================================
+1. Versioned event ordering
+Arrival order: version 2, version 1, version 2 again
+================================================================
+
+>> deliver order_id=ord-100 version=2 status=PAID
+   buffered version 2; waiting for version 1
+   order_id=ord-100 version=0 status=(none) pending=2 missing=1 fencing_token=0
+
+>> deliver order_id=ord-100 version=1 status=CREATED
+   applied in order: version 1 CREATED, version 2 PAID
+   order_id=ord-100 version=2 status=PAID pending=(none) missing=(none) fencing_token=0
+
+>> deliver order_id=ord-100 version=2 status=PAID (again)
+   ignored duplicate version 2; already applied through version 2
+   order_id=ord-100 version=2 status=PAID pending=(none) missing=(none) fencing_token=0
+
+check: version 2 stayed pending until version 1 arrived, and the order stayed at version 0
+check: version 1 CREATED and version 2 PAID were applied in that order
+check: the second copy of version 2 was ignored and the order stayed at PAID
+
+================================================================
+2. Missing event test
+Sent only version 3. Versions 1 and 2 were never sent.
+================================================================
+
+>> deliver order_id=ord-missing version=3 status=SHIPPED
+   buffered version 3; waiting for versions 1, 2
+   order_id=ord-missing version=0 status=(none) pending=3 missing=1, 2 fencing_token=0
+
+check: the order stayed at version 0 with no status, so it did not jump to SHIPPED
+check: version 3 is recorded as pending and versions 1 and 2 are recorded as missing
+
+================================================================
+3. Stale worker test
+Two workers update ord-fence. The later worker receives the higher token.
+================================================================
+
+issued fencing token 1 to worker-a
+issued fencing token 2 to worker-b
+worker-b holds the newer token (2 > 1)
+
+>> worker-a token=1 deliver order_id=ord-fence version=1 status=CREATED
+   applied in order: version 1 CREATED
+   order_id=ord-fence version=1 status=CREATED pending=(none) missing=(none) fencing_token=1
+
+>> worker-b token=2 deliver order_id=ord-fence version=2 status=PAID
+   applied in order: version 2 PAID
+   order_id=ord-fence version=2 status=PAID pending=(none) missing=(none) fencing_token=2
+
+>> worker-a token=1 deliver order_id=ord-fence version=3 status=SHIPPED
+   rejected stale worker: token 1 is older than 2
+   order_id=ord-fence version=2 status=PAID pending=(none) missing=(none) fencing_token=2
+
+check: worker-a updated the order while token 1 was the newest token
+check: worker-b, holding the newer token, advanced the order to PAID
+check: worker-a, holding the older token, was rejected and the order stayed at PAID
+
+All scenario checks passed.

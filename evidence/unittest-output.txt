@@ -1,0 +1,17 @@
+test_buffered_chain_drains_when_the_gap_fills (tests.test_order_processor.OrderProcessorTest.test_buffered_chain_drains_when_the_gap_fills) ... ok
+test_duplicate_from_a_newer_token_still_moves_the_fence (tests.test_order_processor.OrderProcessorTest.test_duplicate_from_a_newer_token_still_moves_the_fence) ... ok
+test_duplicate_of_a_buffered_version_is_stored_once (tests.test_order_processor.OrderProcessorTest.test_duplicate_of_a_buffered_version_is_stored_once) ... ok
+test_invalid_event_and_token_are_rejected (tests.test_order_processor.OrderProcessorTest.test_invalid_event_and_token_are_rejected) ... ok
+test_issuer_hands_out_increasing_tokens (tests.test_order_processor.OrderProcessorTest.test_issuer_hands_out_increasing_tokens) ... ok
+test_missing_later_version_does_not_advance_the_order (tests.test_order_processor.OrderProcessorTest.test_missing_later_version_does_not_advance_the_order) ... ok
+test_newer_token_updates_and_older_token_is_rejected (tests.test_order_processor.OrderProcessorTest.test_newer_token_updates_and_older_token_is_rejected) ... ok
+test_orders_do_not_share_pending_state (tests.test_order_processor.OrderProcessorTest.test_orders_do_not_share_pending_state) ... ok
+test_out_of_order_delivery_applies_in_version_order (tests.test_order_processor.OrderProcessorTest.test_out_of_order_delivery_applies_in_version_order) ... ok
+test_same_token_can_keep_writing (tests.test_order_processor.OrderProcessorTest.test_same_token_can_keep_writing) ... ok
+test_stale_worker_cannot_fill_a_gap (tests.test_order_processor.OrderProcessorTest.test_stale_worker_cannot_fill_a_gap) ... ok
+test_token_is_required_after_a_fence_is_set (tests.test_order_processor.OrderProcessorTest.test_token_is_required_after_a_fence_is_set) ... ok
+
+----------------------------------------------------------------------
+Ran 12 tests in 0.001s
+
+OK
